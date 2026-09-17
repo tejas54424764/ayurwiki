@@ -1,8 +1,10 @@
 """MkDocs hooks — recent changes, credits page, and per-page contributor credits."""
 
 from html import escape as esc
+import hashlib
 import json
 import os
+import re
 import subprocess
 from collections import defaultdict
 from datetime import datetime
@@ -12,6 +14,18 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
 DOCS_DIR = os.path.join(ROOT_DIR, "docs")
 RC_OUTPUT = os.path.join(DOCS_DIR, "recent-changes.md")
+
+# Card-feed index: category dir name -> written to docs/assets/cards/<name>.json
+CARD_CATEGORIES = [
+    "herbs", "medicines", "yoga", "concepts",
+    "physiology", "practices", "traditions", "manufacturers",
+]
+CARDS_OUTPUT_DIR = os.path.join(DOCS_DIR, "assets", "cards")
+# Root-level pages (docs/*.md) that are NOT content pages for the all-pages feed
+ALL_PAGES_SKIP = {
+    "index.md", "recent-changes.md", "credits.md", "contributing.md",
+    "privacy.md", "all-articles.md",
+}
 CONTRIBUTORS_JSON = os.path.join(ROOT_DIR, "data", "contributors.json")
 CREDITS_OUTPUT = os.path.join(DOCS_DIR, "credits.md")
 
@@ -569,20 +583,332 @@ def _generate_short_url_redirects(config):
 
 
 # ============================================================
+# Card-feed indexes (category landing pages)
+# ============================================================
+
+_IMG_RE = re.compile(r"!\[[^\]]*\]\(\.\./images/(.+?)\)\s*$")
+_INLINE_IMG_RE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+_MD_LINK_RE = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+_MD_EMPH_RE = re.compile(r"[*_`]+")
+_MD_HTML_RE = re.compile(r"<[^>]+>")
+
+
+def _first_alpha_letter(title):
+    """Return the first A-Z letter of a title, uppercased, else '#'."""
+    for ch in title:
+        if ch.isascii() and ch.isalpha():
+            return ch.upper()
+    return "#"
+
+
+_BULLET_RE = re.compile(r"^[-*+]\s")
+
+
+def _clean_summary(text):
+    """Strip markdown/HTML to plain text. Returns '' for letterless junk."""
+    text = _INLINE_IMG_RE.sub("", text)
+    text = _MD_LINK_RE.sub(r"\1", text)
+    text = _MD_HTML_RE.sub("", text)
+    text = _MD_EMPH_RE.sub("", text)
+    text = " ".join(text.split())
+    text = text.lstrip(" ,;:.-–—")  # trim stray leading punctuation
+    # Reject lines that are only punctuation/commas (empty template fields)
+    if sum(1 for c in text if c.isalpha()) < 4:
+        return ""
+    if len(text) > 180:
+        text = text[:177].rstrip() + "…"
+    return text
+
+
+_LINE_IMG_RE = re.compile(r"^!\[[^\]]*\]\(\.\./images/(.+)\)\s*$")
+_image_to_page = {}  # image filename -> {"t","s","c"} (first page that uses it)
+
+
+def _extract_card(md_path, raw=None):
+    """Extract {title, slug, image, summary, letter} from one markdown page."""
+    if raw is None:
+        try:
+            with open(md_path, "r", encoding="utf-8", errors="replace") as f:
+                raw = f.read()
+        except (OSError, IOError):
+            return None
+
+    # Split off YAML frontmatter
+    body = raw
+    title = None
+    if raw.startswith("---"):
+        end = raw.find("\n---", 3)
+        if end != -1:
+            front = raw[3:end]
+            body = raw[end + 4:]
+            for line in front.split("\n"):
+                line = line.strip()
+                if line.startswith("title:"):
+                    title = line.split(":", 1)[1].strip().strip('"').strip("'")
+
+    image = None
+    summary = ""
+    in_lead = True  # the genuine intro sits between the H1 and the first "##"
+    for line in body.split("\n"):
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith("#"):
+            if title is None and s.startswith("# ") and not s.startswith("## "):
+                title = s[2:].strip()
+            if s.startswith("## "):
+                in_lead = False
+            continue
+        if s == "[TOC]" or s.lower() == "[toc]":
+            continue
+        # Lead image line
+        m = _IMG_RE.match(s)
+        if m:
+            if image is None:
+                image = m.group(1).strip()
+            continue
+        if s.startswith("!["):  # image without our expected path form
+            continue
+        if s.startswith(("|", ">")) or _BULLET_RE.match(s):  # table/quote/list
+            continue
+        # First real prose paragraph in the lead region -> summary
+        if not summary and in_lead:
+            summary = _clean_summary(s)
+        if image is not None and summary:
+            break
+
+    if not title:
+        title = os.path.basename(md_path)[:-3].replace("_", " ")
+    return {
+        "t": title,
+        "i": image,
+        "d": summary,
+        "l": _first_alpha_letter(title),
+    }
+
+
+def _record_images(raw, site_path, section, title):
+    """Record every ../images/<file> reference on its own line -> page."""
+    for line in raw.split("\n"):
+        m = _LINE_IMG_RE.match(line.strip())
+        if m:
+            fn = m.group(1).strip()
+            if fn not in _image_to_page:
+                _image_to_page[fn] = {"t": title, "s": site_path, "c": section}
+
+
+def _generate_card_indexes():
+    """Build per-category card JSON for the paginated card feed."""
+    os.makedirs(CARDS_OUTPUT_DIR, exist_ok=True)
+    _image_to_page.clear()
+    for cat in CARD_CATEGORIES:
+        cat_dir = os.path.join(DOCS_DIR, cat)
+        if not os.path.isdir(cat_dir):
+            continue
+        cards = []
+        for root, _dirs, files in os.walk(cat_dir):
+            for fn in sorted(files):
+                if not fn.endswith(".md") or fn == "index.md":
+                    continue
+                full = os.path.join(root, fn)
+                try:
+                    with open(full, "r", encoding="utf-8", errors="replace") as fp:
+                        raw = fp.read()
+                except (OSError, IOError):
+                    continue
+                card = _extract_card(full, raw)
+                if not card:
+                    continue
+                # slug = path relative to the category dir, POSIX, without .md
+                rel = os.path.relpath(full, cat_dir)[:-3].replace(os.sep, "/")
+                card["s"] = rel
+                cards.append(card)
+                _record_images(raw, cat + "/" + rel, cat, card["t"])
+        # Sort case-insensitively by title so the feed matches the A-Z list
+        cards.sort(key=lambda c: c["t"].lower())
+        out = os.path.join(CARDS_OUTPUT_DIR, f"{cat}.json")
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(cards, f, ensure_ascii=False, separators=(",", ":"))
+
+    # All pages: the root-level docs/*.md glossary/misc pages.
+    all_cards = []
+    for fn in sorted(os.listdir(DOCS_DIR)):
+        if not fn.endswith(".md") or fn in ALL_PAGES_SKIP:
+            continue
+        full = os.path.join(DOCS_DIR, fn)
+        if not os.path.isfile(full):
+            continue
+        try:
+            with open(full, "r", encoding="utf-8", errors="replace") as fp:
+                raw = fp.read()
+        except (OSError, IOError):
+            continue
+        card = _extract_card(full, raw)
+        if card:
+            card["s"] = fn[:-3]
+            all_cards.append(card)
+            _record_images(raw, fn[:-3], "", card["t"])
+    all_cards.sort(key=lambda c: c["t"].lower())
+    with open(os.path.join(CARDS_OUTPUT_DIR, "all-articles.json"), "w",
+              encoding="utf-8") as f:
+        json.dump(all_cards, f, ensure_ascii=False, separators=(",", ":"))
+
+
+def _generate_recent_cards(limit=24):
+    """Build a JSON of the most recently updated content pages (for the home
+    'Recently updated' row), newest first, skipping bulk imports and meta pages."""
+    try:
+        result = subprocess.run(
+            ["git", "log", "--diff-filter=ACMR", "--name-only",
+             "--pretty=format:COMMIT", "-n", "400", "--", "docs/"],
+            capture_output=True, text=True, cwd=ROOT_DIR,
+        )
+        if result.returncode != 0:
+            return
+    except FileNotFoundError:
+        return
+
+    groups, cur = [], None
+    for line in result.stdout.split("\n"):
+        line = line.strip()
+        if line == "COMMIT":
+            if cur is not None:
+                groups.append(cur)
+            cur = []
+        elif cur is not None and line.startswith("docs/") and line.endswith(".md"):
+            cur.append(line)
+    if cur:
+        groups.append(cur)
+
+    skip_names = {"index.md"} | ALL_PAGES_SKIP
+    seen, cards = set(), []
+    for files in groups:
+        if len(files) > BULK_THRESHOLD:
+            continue  # skip bulk imports
+        for f in files:
+            if f in seen:
+                continue
+            rel = f[5:]  # strip "docs/"
+            if os.path.basename(rel) in skip_names:
+                continue
+            full = os.path.join(ROOT_DIR, f)
+            if not os.path.isfile(full):
+                continue
+            card = _extract_card(full)
+            if not card:
+                continue
+            seen.add(f)
+            card["s"] = rel[:-3]  # site path without .md (already POSIX)
+            card["c"] = rel.split("/")[0] if "/" in rel else ""
+            cards.append(card)
+            if len(cards) >= limit:
+                break
+        if len(cards) >= limit:
+            break
+
+    with open(os.path.join(CARDS_OUTPUT_DIR, "_recent.json"), "w",
+              encoding="utf-8") as f:
+        json.dump(cards, f, ensure_ascii=False, separators=(",", ":"))
+
+
+def _generate_latest_images(limit=18):
+    """Build a JSON of pages with the most recently ADDED images (newest first),
+    using the image->page map built by _generate_card_indexes."""
+    if not _image_to_page:
+        return
+    try:
+        result = subprocess.run(
+            ["git", "log", "--diff-filter=A", "--name-only",
+             "--pretty=format:", "--", "docs/images/"],
+            capture_output=True, text=True, cwd=ROOT_DIR,
+        )
+        if result.returncode != 0:
+            return
+    except FileNotFoundError:
+        return
+
+    seen_pages, cards = set(), []
+    for line in result.stdout.split("\n"):
+        line = line.strip()
+        if not line.startswith("docs/images/"):
+            continue
+        fn = line[len("docs/images/"):]
+        page = _image_to_page.get(fn)
+        if not page or page["s"] in seen_pages:
+            continue
+        seen_pages.add(page["s"])
+        cards.append({"t": page["t"], "s": page["s"], "c": page["c"], "i": fn})
+        if len(cards) >= limit:
+            break
+
+    with open(os.path.join(CARDS_OUTPUT_DIR, "_latest_images.json"), "w",
+              encoding="utf-8") as f:
+        json.dump(cards, f, ensure_ascii=False, separators=(",", ":"))
+
+
+def _compute_stats():
+    """Exact content-page counts for the sidebar stat cards."""
+    def count(sub):
+        p = os.path.join(DOCS_DIR, sub)
+        n = 0
+        if os.path.isdir(p):
+            for _r, _ds, fs in os.walk(p):
+                n += sum(1 for f in fs if f.endswith(".md") and f != "index.md")
+        return n
+
+    total = 0
+    for _r, _ds, fs in os.walk(DOCS_DIR):
+        total += sum(1 for f in fs
+                     if f.endswith(".md") and f != "index.md"
+                     and f not in ALL_PAGES_SKIP)
+    return {
+        "herbs": count("herbs"),
+        "medicines": count("medicines"),
+        "yoga": count("yoga"),
+        "physiology": count("physiology"),
+        "manufacturers": count("manufacturers"),
+        "pages": total,
+    }
+
+
+# ============================================================
 # MkDocs Hooks
 # ============================================================
+
+def _cache_bust(config):
+    """Append a content-hash query to local extra_css/extra_javascript so that
+    browsers reload them whenever their contents change."""
+    for key in ("extra_css", "extra_javascript"):
+        items = config.get(key) or []
+        new_items = []
+        for item in items:
+            path = str(item)
+            local = os.path.join(DOCS_DIR, path)
+            if "?" not in path and os.path.isfile(local):
+                with open(local, "rb") as f:
+                    h = hashlib.md5(f.read()).hexdigest()[:8]
+                new_items.append(f"{path}?h={h}")
+            else:
+                new_items.append(item)
+        config[key] = new_items
+
 
 def on_config(config, **kwargs):
     """Load contributor data and build short URL mapping (runs once per build)."""
     global _credits_data, _short_urls
     _credits_data = _load_credits()
     _short_urls = _build_short_urls()
+    _cache_bust(config)
+    config.setdefault("extra", {})["stats"] = _compute_stats()
     return config
 
 
 def on_pre_build(config, **kwargs):
-    """Generate recent-changes.md and credits.md before build."""
+    """Generate recent-changes.md, credits.md, and card indexes before build."""
     _generate_recent_changes()
+    _generate_card_indexes()
+    _generate_recent_cards()
+    _generate_latest_images()
     if _credits_data:
         _generate_credits_page()
 

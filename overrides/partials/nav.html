@@ -21,30 +21,31 @@
       {% include "partials/source.html" %}
     </div>
   {% endif %}
+  {% set stats = config.extra.stats | d({}) %}
   <div class="sidebar-stats">
     <a href="{{ 'herbs/' | url }}" class="stat-card">
-      <span class="stat-number">2,200+</span>
+      <span class="stat-number">{{ "{:,}".format(stats.herbs) if stats.herbs else "2,200+" }}</span>
       <span class="stat-label">Herbs</span>
     </a>
     <a href="{{ 'medicines/' | url }}" class="stat-card">
-      <span class="stat-number">1,500+</span>
+      <span class="stat-number">{{ "{:,}".format(stats.medicines) if stats.medicines else "1,500+" }}</span>
       <span class="stat-label">Medicines</span>
     </a>
     <a href="{{ 'yoga/' | url }}" class="stat-card">
-      <span class="stat-number">300+</span>
+      <span class="stat-number">{{ "{:,}".format(stats.yoga) if stats.yoga else "300+" }}</span>
       <span class="stat-label">Yoga</span>
     </a>
     <a href="{{ 'physiology/' | url }}" class="stat-card">
-      <span class="stat-number">160+</span>
+      <span class="stat-number">{{ "{:,}".format(stats.physiology) if stats.physiology else "160+" }}</span>
       <span class="stat-label">Physiology</span>
     </a>
     <a href="{{ 'manufacturers/' | url }}" class="stat-card">
-      <span class="stat-number">150+</span>
+      <span class="stat-number">{{ "{:,}".format(stats.manufacturers) if stats.manufacturers else "150+" }}</span>
       <span class="stat-label">Manufacturers</span>
     </a>
     <a href="{{ 'all-articles/' | url }}" class="stat-card">
-      <span class="stat-number">5,400+</span>
-      <span class="stat-label">Articles</span>
+      <span class="stat-number">{{ "{:,}".format(stats.pages) if stats.pages else "5,400+" }}</span>
+      <span class="stat-label">Pages</span>
     </a>
   </div>
   <ul class="md-nav__list" data-md-scrollfix>

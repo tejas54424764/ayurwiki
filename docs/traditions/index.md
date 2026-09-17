@@ -6,7 +6,7 @@ title: "Traditions"
 
 Schools of thought, classical texts, and lineages in Ayurveda.
 
-**30 articles** in this section.
+**30 pages** in this section.
 
 ### A
 

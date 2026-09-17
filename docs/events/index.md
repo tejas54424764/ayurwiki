@@ -6,7 +6,7 @@ title: "Events"
 
 Ayurveda-related events and conferences.
 
-**1 articles** in this section.
+**1 pages** in this section.
 
 ### V
 

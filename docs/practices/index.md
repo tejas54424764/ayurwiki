@@ -6,7 +6,7 @@ title: "Practices"
 
 Clinical and therapeutic practices of Ayurveda.
 
-**9 articles** in this section.
+**9 pages** in this section.
 
 ### A
 

@@ -6,7 +6,7 @@ title: "Concepts"
 
 Core Ayurvedic concepts including prakriti, rasa, guna, and veerya.
 
-**37 articles** in this section.
+**37 pages** in this section.
 
 ## Prakriti
 

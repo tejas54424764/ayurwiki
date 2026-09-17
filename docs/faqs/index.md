@@ -6,7 +6,7 @@ title: "FAQs"
 
 Frequently asked questions about Ayurveda.
 
-**5 articles** in this section.
+**5 pages** in this section.
 
 ### F
 

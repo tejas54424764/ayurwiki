@@ -6,7 +6,7 @@ title: "Herbs"
 
 Comprehensive database of Ayurvedic herbs with common names, properties, uses, and identification.
 
-**2212 articles** in this section.
+**2212 pages** in this section.
 
 ### A
 

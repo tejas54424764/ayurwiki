@@ -6,7 +6,7 @@ title: "Gallery"
 
 Photo gallery of Ayurvedic herbs, plants, and preparations.
 
-**8 articles** in this section.
+**8 pages** in this section.
 
 ### C
 

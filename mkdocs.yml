@@ -21,10 +21,9 @@ theme:
   features:
     - navigation.instant
     - navigation.tracking
-    - navigation.tabs
     - navigation.sections
+    - navigation.expand
     - navigation.top
-    - navigation.indexes
     - search.suggest
     - search.highlight
     - search.share
@@ -74,6 +73,8 @@ extra_css:
 extra_javascript:
   - javascripts/edit-modal.js
   - javascripts/pagination.js
+  - javascripts/card-feed.js
+  - javascripts/home-feed.js
   - javascripts/content-tabs.js
   - javascripts/share.js
 
@@ -92,7 +93,7 @@ nav:
     - Institutions: institutions/index.md
     - Resources: resources/index.md
   - Browse:
-    - All Articles: all-articles.md
+    - All Pages: all-articles.md
     - Categories: categories/index.md
     - Recent Changes: recent-changes.md
   - About:

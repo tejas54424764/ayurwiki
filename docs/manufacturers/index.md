@@ -6,7 +6,7 @@ title: "Manufacturers"
 
 Ayurvedic pharmaceutical companies and producers.
 
-**156 articles** in this section.
+**156 pages** in this section.
 
 ### A
 

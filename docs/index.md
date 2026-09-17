@@ -4,66 +4,28 @@ title: Home
 
 # Ayurwiki
 
-<p class="aw-home-logo"><img src="assets/logo.png" alt="Ayurwiki logo"></p>
+<div class="aw-hero" markdown>
+<img class="aw-hero-logo" src="assets/logo.png" alt="Ayurwiki logo">
+<div class="aw-hero-text" markdown>
+An open, community-driven encyclopedia of **Ayurveda** — herbs, medicines, yoga, practices and the traditional wisdom of one of the world's oldest systems of holistic health.
 
-**Ayurwiki** is an open, community-driven encyclopedia of Ayurveda — documenting herbs, medicines, practices, yoga, and the traditional wisdom of one of the world's oldest systems of holistic health.
-
-<div class="award-banner" markdown>
-:material-medal:{ style="color: #d4a017" } Awarded **Gold** under the "Award for Excellence in Information Technology in AYUSH sector - 2019"
+<span class="aw-hero-badge">🏅 Gold Award — Excellence in IT in the AYUSH sector, 2019</span>
+</div>
 </div>
 
-## Explore
-
-<div class="grid cards" markdown>
-
-- :material-leaf:{ .lg .middle } **Herbs**
-
-    ---
-
-    2,200+ medicinal plants with common names, properties, uses, and identification.
-
-    [:octicons-arrow-right-24: Browse Herbs](herbs/index.md)
-
-- :material-pill:{ .lg .middle } **Medicines**
-
-    ---
-
-    1,500+ Ayurvedic formulations, proprietary medicines, and traditional preparations.
-
-    [:octicons-arrow-right-24: Browse Medicines](medicines/index.md)
-
-- :material-yoga:{ .lg .middle } **Yoga**
-
-    ---
-
-    300+ yoga asanas, pranayama techniques, and mudras as practiced in Ayurvedic tradition.
-
-    [:octicons-arrow-right-24: Browse Yoga](yoga/index.md)
-
-- :material-book-open-variant:{ .lg .middle } **Traditions**
-
-    ---
-
-    Schools of thought, classical texts, and lineages in Ayurveda.
-
-    [:octicons-arrow-right-24: Browse Traditions](traditions/index.md)
-
-- :material-human:{ .lg .middle } **Physiology**
-
-    ---
-
-    Ayurvedic understanding of the body — doshas, dhatus, srotas, and agni.
-
-    [:octicons-arrow-right-24: Browse Physiology](physiology/index.md)
-
-- :material-lightbulb-outline:{ .lg .middle } **Concepts**
-
-    ---
-
-    Core Ayurvedic concepts including prakriti, rasa, guna, and veerya.
-
-    [:octicons-arrow-right-24: Browse Concepts](concepts/index.md)
-
+<div id="aw-home-feed" class="aw-home-feed" markdown="0">
+<noscript>
+<h2>Explore</h2>
+<ul>
+<li><a href="herbs/">Herbs</a> — medicinal plants, properties, uses and identification.</li>
+<li><a href="medicines/">Medicines</a> — Ayurvedic formulations and preparations.</li>
+<li><a href="yoga/">Yoga</a> — asanas, pranayama and mudras.</li>
+<li><a href="physiology/">Physiology</a> — doshas, dhatus, srotas and agni.</li>
+<li><a href="concepts/">Concepts</a> — prakriti, rasa, guna and veerya.</li>
+<li><a href="traditions/">Traditions</a> — schools of thought, texts and lineages.</li>
+<li><a href="practices/">Practices</a> — clinical and therapeutic practices.</li>
+</ul>
+</noscript>
 </div>
 
 ## Contributing

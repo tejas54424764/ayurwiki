@@ -5,15 +5,20 @@
   var PER_PAGE = 25;
 
   function init() {
-    // Only run on the Recent Changes page
+    // Only run on the Recent Changes page (strip the permalink "¶" the toc adds)
     var heading = document.querySelector('h1');
-    if (!heading || heading.textContent.trim() !== 'Recent Changes') return;
+    if (!heading) return;
+    var htext = heading.textContent.replace(/¶/g, '').trim();
+    if (htext !== 'Recent Changes') return;
 
     var table = document.querySelector('.md-typeset table');
     if (!table) return;
 
     var tbody = table.querySelector('tbody');
     if (!tbody) return;
+
+    // Guard against double init (initial load + instant-nav both fire)
+    if (table.parentNode.querySelector('.rc-pagination')) return;
 
     var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
     if (rows.length <= PER_PAGE) return;

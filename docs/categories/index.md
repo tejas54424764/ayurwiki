@@ -4,9 +4,9 @@ title: "Categories"
 
 # Categories
 
-Browse articles organized by category.
+Browse pages organized by category.
 
-**1907 articles** in this section.
+**1907 pages** in this section.
 
 ### A
 

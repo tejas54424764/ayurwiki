@@ -6,7 +6,7 @@ title: "Yoga"
 
 Yoga asanas, pranayama techniques, and mudras as practiced in Ayurvedic tradition.
 
-**317 articles** in this section.
+**317 pages** in this section.
 
 ## Mudras
 

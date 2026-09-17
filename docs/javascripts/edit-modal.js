@@ -266,21 +266,98 @@
     document.body.style.overflow = '';
   }
 
-  // --- Floating button ---
+  // --- Tab-bar controls (Edit + sign-in) ---
+
+  // System/meta pages and auto-generated section indexes are not user-editable.
+  var SYSTEM_PAGES = {
+    '': 1, 'index': 1, 'recent-changes': 1, 'credits': 1, 'contributing': 1,
+    'privacy': 1, 'all-articles': 1, 'categories': 1
+  };
+  var SECTION_INDEXES = {
+    'herbs': 1, 'medicines': 1, 'yoga': 1, 'concepts': 1, 'physiology': 1,
+    'practices': 1, 'traditions': 1, 'manufacturers': 1, 'institutions': 1,
+    'resources': 1, 'events': 1, 'gallery': 1, 'faqs': 1
+  };
+
+  function isArticlePage() {
+    var path = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+    if (SYSTEM_PAGES[path]) return false;
+    var segs = path.split('/');
+    // A single-segment path that names a section is that section's index page.
+    if (segs.length === 1 && SECTION_INDEXES[segs[0]]) return false;
+    return !!document.querySelector('.md-content h1, article h1');
+  }
+
+  function startLogin() {
+    var returnUrl = window.location.href.split('#')[0];
+    window.location.href = API + '/auth/login?platform=web&return_url=' + encodeURIComponent(returnUrl);
+  }
+
+  // Find the Article/Contributors tab bar, or synthesize one on plain pages.
+  function getTabBar() {
+    var bar = document.querySelector('.aw-tab-bar');
+    if (bar) return bar;
+    var inner = document.querySelector('.md-content__inner');
+    if (!inner) return null;
+    bar = document.createElement('div');
+    bar.className = 'aw-tab-bar aw-tab-bar--synth';
+    inner.insertBefore(bar, inner.firstChild);
+    return bar;
+  }
+
+  var EDIT_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+  var GH_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5.99.11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5z"/></svg>';
+
+  function renderAuthChip(chip) {
+    var auth = getAuth();
+    chip.innerHTML = '';
+    if (auth && auth.login) {
+      if (auth.avatar_url) {
+        var img = document.createElement('img');
+        img.className = 'aw-auth-avatar';
+        img.src = auth.avatar_url;
+        img.alt = '';
+        chip.appendChild(img);
+      }
+      var name = document.createElement('span');
+      name.className = 'aw-auth-name';
+      name.textContent = '@' + auth.login;
+      chip.appendChild(name);
+      var out = document.createElement('button');
+      out.className = 'aw-auth-logout';
+      out.textContent = 'Sign out';
+      out.onclick = function () { clearAuth(); renderAuthChip(chip); };
+      chip.appendChild(out);
+    } else {
+      var signin = document.createElement('button');
+      signin.className = 'aw-tab aw-auth-signin';
+      signin.innerHTML = GH_SVG + ' Sign in';
+      signin.title = 'Sign in with GitHub';
+      signin.onclick = startLogin;
+      chip.appendChild(signin);
+    }
+  }
 
   function addEditButton() {
-    // Don't add on index/home pages
-    var path = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
-    if (!path || path === '' || path === 'index') return;
-    // Don't add if no h1 (not an article page)
-    if (!document.querySelector('article h1, .md-content h1')) return;
+    if (!isArticlePage()) return;
+    var bar = getTabBar();
+    if (!bar || bar.querySelector('.aw-edit-tab')) return;
 
-    var btn = document.createElement('button');
-    btn.className = 'aw-edit-fab';
-    btn.title = 'Suggest an edit';
-    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
-    btn.onclick = openModal;
-    document.body.appendChild(btn);
+    // Edit button — grouped with the tabs (before Share if present)
+    var editBtn = document.createElement('button');
+    editBtn.className = 'aw-tab aw-edit-tab';
+    editBtn.title = 'Suggest an edit';
+    editBtn.innerHTML = EDIT_SVG + ' Edit';
+    editBtn.onclick = openModal;
+    var share = bar.querySelector('.aw-share-btn');
+    if (share) bar.insertBefore(editBtn, share);
+    else bar.appendChild(editBtn);
+
+    // Auth chip — far right
+    var chip = document.createElement('span');
+    chip.className = 'aw-auth-chip';
+    bar.appendChild(chip);
+    renderAuthChip(chip);
   }
 
   // --- Init ---
@@ -302,9 +379,9 @@
   // Handle MkDocs Material instant navigation
   if (typeof document$ !== 'undefined') {
     document$.subscribe(function () {
-      // Remove old FAB on navigation
-      var oldFab = document.querySelector('.aw-edit-fab');
-      if (oldFab) oldFab.remove();
+      // Clean up synthesized bars / injected controls from the previous page
+      var synth = document.querySelector('.aw-tab-bar--synth');
+      if (synth) synth.remove();
       var oldOverlay = document.querySelector('.aw-edit-overlay');
       if (oldOverlay) oldOverlay.remove();
       addEditButton();

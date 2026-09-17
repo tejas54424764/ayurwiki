@@ -6,7 +6,7 @@ title: "Physiology"
 
 Ayurvedic understanding of the body — doshas, dhatus, srotas, and agni.
 
-**167 articles** in this section.
+**167 pages** in this section.
 
 ### A
 

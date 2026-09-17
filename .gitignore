@@ -8,3 +8,6 @@ venv/
 ayurwiki.sql.gz
 logs/
 CLAUDE.md
+
+# Generated card-feed data (built by scripts/hooks.py on_pre_build)
+docs/assets/cards/

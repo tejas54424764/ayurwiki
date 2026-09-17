@@ -1,10 +1,10 @@
 ---
-title: "All Articles"
+title: "All Pages"
 ---
 
-# All Articles
+# All Pages
 
-**933 articles** not assigned to a specific section.
+**933 pages** not assigned to a specific section.
 
 ## A
 

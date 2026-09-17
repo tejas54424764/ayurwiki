@@ -6,7 +6,7 @@ title: "Medicines"
 
 Ayurvedic formulations, proprietary medicines, and traditional preparations.
 
-**1535 articles** in this section.
+**1535 pages** in this section.
 
 ## Proprietary
 

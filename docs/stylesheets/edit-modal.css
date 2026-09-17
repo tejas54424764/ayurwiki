@@ -1,27 +1,54 @@
 /* Ayurwiki — Suggest Edit modal styles */
 
-/* Floating action button */
-.aw-edit-fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 48px;
-  height: 48px;
+/* Edit button + sign-in controls in the Article/Contributors tab bar */
+.aw-tab.aw-edit-tab,
+.aw-tab.aw-auth-signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.aw-tab.aw-edit-tab svg,
+.aw-tab.aw-auth-signin svg {
+  vertical-align: middle;
+}
+/* Auth chip — pushed to the far right of the bar */
+.aw-auth-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding-left: 8px;
+}
+.aw-auth-avatar {
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #4a635a;
-  color: #fff;
+  display: inline-block;
+}
+.aw-auth-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #333;
+}
+.aw-auth-logout {
+  font-size: 0.62rem;
+  color: #0645ad;
+  background: none;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  padding: 0;
+  text-decoration: underline;
+}
+.aw-auth-logout:hover {
+  color: #0b0080;
+}
+/* A tab bar synthesized on pages that have no Article/Contributors tabs */
+.aw-tab-bar--synth {
+  float: right;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 99;
-  transition: background 0.2s, transform 0.2s;
-}
-.aw-edit-fab:hover {
-  background: #3a5249;
-  transform: scale(1.08);
+  gap: 0;
+  margin: 4px 0 0 12px;
 }
 
 /* Overlay */

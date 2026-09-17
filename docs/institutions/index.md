@@ -6,7 +6,7 @@ title: "Institutions"
 
 Educational and research institutions in Ayurveda.
 
-**34 articles** in this section.
+**34 pages** in this section.
 
 ### A
 

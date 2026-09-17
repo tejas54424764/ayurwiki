@@ -6,7 +6,7 @@ title: "Resources"
 
 Books, literature, journals, and magazines on Ayurveda.
 
-**34 articles** in this section.
+**34 pages** in this section.
 
 ## Books
 
