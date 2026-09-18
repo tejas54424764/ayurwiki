@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 DOCS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs")
 SITE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "site")
 OUTPUT = os.path.join(SITE_DIR, "api", "articles.json")
+CARDS_DIR = os.path.join(SITE_DIR, "assets", "cards")
 
 CATEGORY_DIRS = {
     "herbs": "Herbs",
@@ -83,6 +84,51 @@ def find_first_image(content):
     return None
 
 
+_INLINE_IMG = re.compile(r"!\[[^\]]*\]\([^)]*\)")
+_MD_LINK = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+_MD_EMPH = re.compile(r"[*_`]+")
+_MD_HTML = re.compile(r"<[^>]+>")
+_BULLET = re.compile(r"^[-*+]\s")
+
+
+def extract_summary(body):
+    """First real prose paragraph in the lead region (before the first '## '),
+    stripped of markdown; matches the web card summaries."""
+    in_lead = True
+    for line in body.split("\n"):
+        s = line.strip()
+        if not s:
+            continue
+        if s.startswith("#"):
+            if s.startswith("## "):
+                in_lead = False
+            continue
+        if not in_lead:
+            break
+        if s.lower() == "[toc]" or s.startswith("!["):
+            continue
+        if s.startswith(("|", ">")) or _BULLET.match(s):
+            continue
+        t = _INLINE_IMG.sub("", s)
+        t = _MD_LINK.sub(r"\1", t)
+        t = _MD_HTML.sub("", t)
+        t = _MD_EMPH.sub("", t)
+        t = " ".join(t.split()).lstrip(" ,;:.-–—")
+        if sum(1 for c in t if c.isalpha()) < 4:
+            continue
+        return t[:177].rstrip() + "…" if len(t) > 180 else t
+    return ""
+
+
+def _read_cards(name):
+    """Read a card-feed JSON produced by the MkDocs build (may be absent)."""
+    try:
+        with open(os.path.join(CARDS_DIR, name), "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return []
+
+
 def generate():
     articles = []
     categories = {}
@@ -116,6 +162,7 @@ def generate():
                     "category": dir_name,
                     "content": body,
                     "image": image,
+                    "summary": extract_summary(body),
                 })
                 count += 1
 
@@ -145,6 +192,7 @@ def generate():
             "category": "general",
             "content": body,
             "image": image,
+            "summary": extract_summary(body),
         })
         root_count += 1
 
@@ -153,11 +201,21 @@ def generate():
     # Sort articles by title
     articles.sort(key=lambda a: a["title"].lower())
 
+    # Recently updated + latest images (reuse the MkDocs build's card data).
+    valid_ids = {a["id"] for a in articles}
+    recent = [c["s"] for c in _read_cards("_recent.json")
+              if c.get("s") in valid_ids]
+    latest_images = [{"id": c["s"], "image": c["i"]}
+                     for c in _read_cards("_latest_images.json")
+                     if c.get("s") in valid_ids and c.get("i")]
+
     # Build output
     output = {
         "version": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "total": len(articles),
         "categories": sorted(categories.values(), key=lambda c: -c["count"]),
+        "recent": recent,
+        "latestImages": latest_images,
         "articles": articles,
     }
 
