@@ -11,3 +11,8 @@ CLAUDE.md
 
 # Generated card-feed data (built by scripts/hooks.py on_pre_build)
 docs/assets/cards/
+
+# Local-only dev scripts; only the build-critical ones are tracked
+scripts/*
+!scripts/hooks.py
+!scripts/generate_api.py
