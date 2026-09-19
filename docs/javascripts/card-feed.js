@@ -124,7 +124,7 @@
       return ctx.base + ctx.cat + '/' + encodeURI(slug) + '/';
     }
     function imgSrc(fn) {
-      return ctx.base + 'images/' + encodeURI(fn);
+      return 'https://img.ayurwiki.org/' + encodeURI(fn);
     }
 
     function render() {

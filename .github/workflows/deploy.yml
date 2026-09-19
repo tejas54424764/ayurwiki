@@ -31,13 +31,8 @@ jobs:
         run: |
           pip install mkdocs-material
 
-      - name: Sync images from S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ap-south-1
-        run: python scripts/sync_s3_images.py
-
+      # Images are served from the CDN (img.ayurwiki.org), not bundled into the
+      # Pages artifact, so the S3 sync/bundle step is no longer needed.
       - name: Build site
         run: mkdocs build
 

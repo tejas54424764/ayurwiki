@@ -6,6 +6,7 @@ import json
 import os
 import re
 import subprocess
+import urllib.parse
 from collections import defaultdict
 from datetime import datetime
 
@@ -21,6 +22,19 @@ CARD_CATEGORIES = [
     "physiology", "practices", "traditions", "manufacturers",
 ]
 CARDS_OUTPUT_DIR = os.path.join(DOCS_DIR, "assets", "cards")
+
+# Images are served from this CDN base (backed by S3 via Cloudflare), not
+# bundled into the site. Page image URLs are rewritten to it at build time.
+IMAGE_BASE_URL = "https://img.ayurwiki.org/"
+_IMG_SRC_RE = re.compile(r'(<img\b[^>]*?\bsrc=")((?:\.{0,2}/)*images/)([^"]*)(")')
+
+
+def _cdnize_images(html):
+    """Rewrite <img src="(../)*images/FILE"> to the CDN base URL."""
+    def repl(m):
+        fn = urllib.parse.unquote(m.group(3))
+        return m.group(1) + IMAGE_BASE_URL + urllib.parse.quote(fn) + m.group(4)
+    return _IMG_SRC_RE.sub(repl, html)
 # Root-level pages (docs/*.md) that are NOT content pages for the all-pages feed
 ALL_PAGES_SKIP = {
     "index.md", "recent-changes.md", "credits.md", "contributing.md",
@@ -914,7 +928,10 @@ def on_pre_build(config, **kwargs):
 
 
 def on_page_content(html, page, config, files, **kwargs):
-    """Wrap page content and contributor credits in a tab interface."""
+    """Rewrite image URLs to the CDN, then wrap content + credits in tabs."""
+    # Point every page image at the CDN (applies to all pages).
+    html = _cdnize_images(html)
+
     src = page.file.src_path
     basename = os.path.basename(src)
 

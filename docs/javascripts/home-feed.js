@@ -209,7 +209,7 @@
       var img = el('img');
       img.loading = 'lazy';
       img.alt = '';
-      img.src = base + 'images/' + encodeURI(card.i);
+      img.src = 'https://img.ayurwiki.org/' + encodeURI(card.i);
       img.onerror = function () { thumb.classList.add('aw-hc-thumb--empty'); img.remove(); };
       thumb.appendChild(img);
     } else {

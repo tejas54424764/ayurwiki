@@ -7,6 +7,11 @@ repo_url: https://github.com/hpnadig/ayurwiki
 repo_name: hpnadig/ayurwiki
 edit_uri: ""
 
+# Images are served from the CDN (see IMAGE_BASE_URL in scripts/hooks.py), so
+# the local docs/images tree is not copied into the built site.
+exclude_docs: |
+  images/
+
 theme:
   name: material
   custom_dir: overrides
