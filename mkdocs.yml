@@ -34,7 +34,7 @@ theme:
     - search.share
     - toc.follow
   logo: assets/logo.png
-  favicon: assets/logo.png
+  favicon: assets/favicon.ico
   icon:
     repo: fontawesome/brands/github
 
