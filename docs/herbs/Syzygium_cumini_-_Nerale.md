@@ -29,7 +29,7 @@ date: 2023-06-03
 Diabetes, Dysentery, Hyperglycaemia, Glycosuria, Wounds, Irregular menstruation, Mouth ulcers, Diarrhoea, Epilepsy, Scorpion bites.
 
 ## Parts Used
-.
+
 
 ## Chemical Composition
 

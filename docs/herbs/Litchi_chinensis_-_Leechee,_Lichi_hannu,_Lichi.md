@@ -68,7 +68,7 @@ Seeds, Greenwood cuttings, Grafting.
 Litchi is adapted to the tropics and warm subtropics, producing best in regions with winters that are short, dry and cool but frost free, and summers that are long and hot with high rainfall.
 
 ## Commonly seen growing in areas
-, , , , .
+
 
 ## Photo Gallery
 ![](../images/Lichi_Tree.jpg)

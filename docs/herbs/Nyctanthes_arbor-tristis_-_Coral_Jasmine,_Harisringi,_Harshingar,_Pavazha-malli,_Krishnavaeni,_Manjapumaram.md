@@ -53,7 +53,7 @@ Bark, Leaves, Heartwood, Seeds
 | Telugu | Krishnavaeni, Shvethasurasa, Shekhali |
 | Hindi | Harshingar, Seoli |
 | English | Coral Jasmine, Night Jasmine |
-.
+
 
 ## Properties
 Reference: Dravya - Substance, Rasa - Taste, Guna - Qualities, Veerya - Potency, Vipaka - Post-digesion effect, Karma - Pharmacological activity, Prabhava - Therepeutics.

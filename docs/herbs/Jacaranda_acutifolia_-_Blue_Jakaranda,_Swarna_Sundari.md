@@ -31,7 +31,7 @@ Jacaranda is a deciduous tree with spreading branches making a light crown; it c
 Syphilis, Vulnerary, Wound healing.
 
 ## Parts Used
-, stem, leaves, Root.
+stem, leaves, Root.
 
 ## Chemical Composition
 

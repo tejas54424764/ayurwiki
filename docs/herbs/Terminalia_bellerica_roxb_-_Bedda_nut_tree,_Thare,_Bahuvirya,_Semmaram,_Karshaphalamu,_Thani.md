@@ -57,7 +57,7 @@ Beta-sitosterol,gallic acid,ellagic acid,ethyl gallate,galloyl glucose,chebulagi
 | Gujarati | Baheda Sag, Hahedan |
 | Marathi | Baheda, Beda |
 | Punjabi | Bahera, Baharia, Birha |
-.
+
 
 ## Properties
 Reference: Dravya - Substance, Rasa - Taste, Guna - Qualities, Veerya - Potency, Vipaka - Post-digesion effect, Karma - Pharmacological activity, Prabhava - Therepeutics.

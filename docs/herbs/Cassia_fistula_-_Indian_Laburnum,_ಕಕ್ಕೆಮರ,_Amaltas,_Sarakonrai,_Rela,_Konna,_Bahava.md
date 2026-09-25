@@ -68,7 +68,7 @@ Pulp of the pod contains anthraquinone glycosides, sennosides A and B, rhein and
 | Telugu | Rela, Aragvadham, Sampakamu |
 | Assamese | Sonaru |
 | Bengali | Sondali, Sonali |
-.
+
 
 ## Properties
 Reference: Dravya - Substance, Rasa - Taste, Guna - Qualities, Veerya - Potency, Vipaka - Post-digesion effect, Karma - Pharmacological activity, Prabhava - Therepeutics.

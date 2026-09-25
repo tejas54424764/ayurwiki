@@ -50,7 +50,7 @@ The oleoresin of the Shorea robusta Gaertn is called as Shala niryasa, Kala, Sar
 | Telugu | Jalari-chettu, Saala, Sarjakamu |
 | Hindi | Sal, Ral, Shal |
 | English | Sal |
-.
+
 
 ## Properties
 Reference: Dravya - Substance, Rasa - Taste, Guna - Qualities, Veerya - Potency, Vipaka - Post-digesion effect, Karma - Pharmacological activity, Prabhava - Therepeutics.
