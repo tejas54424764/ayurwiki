@@ -20,7 +20,7 @@ date: 2020-04-10
 
 ![](../images/Cedrela_toona_Bra14.png)
 ## Uses
-, , , , , , , , , , .
+Tonic.
 
 ## Parts Used
 , stem, leaves, Root.
@@ -68,3 +68,5 @@ Reference: Dravya - Substance, Rasa - Taste, Guna - Qualities, Veerya - Potency,
 1. ["chemistry"]
 2. ["morphology"]
 3. [ "Cultivation"]
+4. **Sinha, R.P.N.. *Our Trees*. Publications Division, Ministry of Information and Broadcasting, Government of India, 1968 (reprinted 1993), pp. 70-71.**
+   Bark is endowed with medicinal properties. A yellow dye is prepared from its flowers. Bark used medicinally; flowers used for dye.
